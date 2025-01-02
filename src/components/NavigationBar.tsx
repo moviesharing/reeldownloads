@@ -4,12 +4,10 @@ import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
-import { SearchBar } from "@/components/SearchBar";
 
 const qualities = ["720p", "1080p", "2160p", "3D"];
 const genres = ["Action", "Comedy", "Drama", "Horror", "Sci-Fi", "Thriller"];
@@ -27,7 +25,7 @@ const NavigationBar = () => {
           <span className="text-lg font-bold">MovieDownloads</span>
         </Link>
 
-        <NavigationMenu className="hidden md:flex">
+        <NavigationMenu>
           <NavigationMenuList className="gap-2">
             {[
               { label: "Quality", items: qualities },
@@ -57,10 +55,6 @@ const NavigationBar = () => {
             ))}
           </NavigationMenuList>
         </NavigationMenu>
-
-        <div className="ml-auto">
-          <SearchBar />
-        </div>
       </div>
     </nav>
   );
