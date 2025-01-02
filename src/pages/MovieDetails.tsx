@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import Footer from "@/components/Footer";
 import axios from "axios";
 
 const MovieDetails = () => {
@@ -28,11 +29,7 @@ const MovieDetails = () => {
   if (!movie) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="min-h-screen bg-background"
-    >
+    <div className="min-h-screen bg-background flex flex-col">
       <div className="relative h-[70vh]">
         <div className="absolute inset-0">
           <img
@@ -95,7 +92,8 @@ const MovieDetails = () => {
           </div>
         </div>
       </div>
-    </motion.div>
+      <Footer />
+    </div>
   );
 };
 

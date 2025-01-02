@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MovieGrid } from "@/components/MovieGrid";
 import { SearchBar } from "@/components/SearchBar";
 import NavigationBar from "@/components/NavigationBar";
+import Footer from "@/components/Footer";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -35,9 +36,9 @@ const Index = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <NavigationBar />
-      <div className="px-4 py-8 sm:px-6 lg:px-8">
+      <div className="px-4 py-8 sm:px-6 lg:px-8 flex-grow">
         <div className="mx-auto max-w-7xl">
           <div className="mb-12 space-y-4 text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
@@ -85,6 +86,7 @@ const Index = () => {
           <MovieGrid movies={data || []} isLoading={isLoading} />
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
