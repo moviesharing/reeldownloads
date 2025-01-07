@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import { useState } from "react";
 
 const qualities = ["720p", "1080p", "2160p", "3D"];
 const genres = [
@@ -22,18 +23,58 @@ const genres = [
   "Thriller", "War", "Western"
 ];
 const years = ["2024", "2023", "2022", "2021", "2020"];
-const ratings = ["9+", "8+", "7+", "6+", "5+"];
-const languages = ["English", "Spanish", "French", "German", "Italian"];
-const orderBy = ["Latest", "Oldest", "Rating", "Downloads", "Likes"];
+const ratings = ["9", "8", "7", "6", "5"];
+const languages = ["en", "es", "fr", "de", "it"];
+const orderBy = ["latest", "oldest", "rating", "download_count", "like_count"];
 
 const Index = () => {
+  const [filters, setFilters] = useState({
+    quality: "",
+    genre: "",
+    year: "",
+    rating: "",
+    language: "",
+    sort_by: "",
+  });
+
   const { data, isLoading } = useQuery({
-    queryKey: ["movies"],
+    queryKey: ["movies", filters],
     queryFn: async () => {
-      const response = await axios.get("https://yts.mx/api/v2/list_movies.json");
+      const params = new URLSearchParams();
+      
+      // Add filters to params if they are set
+      if (filters.quality) params.append("quality", filters.quality);
+      if (filters.genre && filters.genre !== "All") params.append("genre", filters.genre);
+      if (filters.year) params.append("year", filters.year);
+      if (filters.rating) params.append("minimum_rating", filters.rating);
+      if (filters.language) params.append("language", filters.language);
+      if (filters.sort_by) params.append("sort_by", filters.sort_by);
+      
+      // Always include these default parameters
+      params.append("limit", "20");
+      params.append("page", "1");
+
+      const response = await axios.get(`https://yts.mx/api/v2/list_movies.json?${params.toString()}`);
       return response.data.data.movies;
     },
   });
+
+  const handleFilterClick = (category: string, value: string) => {
+    setFilters(prev => {
+      // If clicking on the same filter value, remove it
+      if (prev[category as keyof typeof prev] === value) {
+        return {
+          ...prev,
+          [category]: ""
+        };
+      }
+      // Otherwise, set the new filter value
+      return {
+        ...prev,
+        [category]: value
+      };
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -54,23 +95,25 @@ const Index = () => {
               <NavigationMenu>
                 <NavigationMenuList className="flex flex-wrap gap-2 justify-center">
                   {[
-                    { label: "Quality", items: qualities },
-                    { label: "Genre", items: genres },
-                    { label: "Year", items: years },
-                    { label: "Rating", items: ratings },
-                    { label: "Language", items: languages },
-                    { label: "Order By", items: orderBy },
+                    { label: "Quality", items: qualities, key: "quality" },
+                    { label: "Genre", items: genres, key: "genre" },
+                    { label: "Year", items: years, key: "year" },
+                    { label: "Rating", items: ratings, key: "rating" },
+                    { label: "Language", items: languages, key: "language" },
+                    { label: "Order By", items: orderBy, key: "sort_by" },
                   ].map((category) => (
                     <NavigationMenuItem key={category.label}>
-                      <NavigationMenuTrigger>{category.label}</NavigationMenuTrigger>
+                      <NavigationMenuTrigger>
+                        {category.label}: {filters[category.key as keyof typeof filters] || "All"}
+                      </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <div className="grid gap-1 p-4 w-40">
                           {category.items.map((item) => (
                             <Button
                               key={item}
-                              variant="ghost"
+                              variant={filters[category.key as keyof typeof filters] === item ? "default" : "ghost"}
                               className="justify-start"
-                              onClick={() => console.log(`Selected ${item} in ${category.label}`)}
+                              onClick={() => handleFilterClick(category.key, item)}
                             >
                               {item}
                             </Button>
