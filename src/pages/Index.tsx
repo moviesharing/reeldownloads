@@ -1,124 +1,58 @@
 import { useQuery } from "@tanstack/react-query";
-import { MovieGrid } from "@/components/MovieGrid";
-import { SearchBar } from "@/components/SearchBar";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import axios from "axios";
-import { useState } from "react";
-
-const qualities = ["720p", "1080p", "2160p", "3D"];
-const genres = [
-  "All", "Action", "Adventure", "Animation", "Biography", "Comedy", 
-  "Crime", "Documentary", "Drama", "Family", "Fantasy", "Film-Noir", 
-  "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", 
-  "News", "Reality-TV", "Romance", "Sci-Fi", "Sport", "Talk-Show", 
-  "Thriller", "War", "Western"
-];
-const years = ["2024", "2023", "2022", "2021", "2020"];
-const ratings = ["9", "8", "7", "6", "5"];
-const languages = ["en", "es", "fr", "de", "it"];
-const orderBy = ["latest", "oldest", "rating", "download_count", "like_count"];
+import { useEffect } from "react";
 
 const Index = () => {
-  const [filters, setFilters] = useState({
-    quality: "",
-    genre: "",
-    year: "",
-    rating: "",
-    language: "",
-    sort_by: "",
-  });
+  useEffect(() => {
+    document.title = "MovieDownloads - Home";
+  }, []);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["movies", filters],
+  const { data: movies, isLoading } = useQuery({
+    queryKey: ["movies"],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      
-      if (filters.quality) params.append("quality", filters.quality);
-      if (filters.genre && filters.genre !== "All") params.append("genre", filters.genre);
-      if (filters.year) params.append("year", filters.year);
-      if (filters.rating) params.append("minimum_rating", filters.rating);
-      if (filters.language) params.append("language", filters.language);
-      if (filters.sort_by) params.append("sort_by", filters.sort_by);
-      
-      params.append("limit", "20");
-      params.append("page", "1");
-
-      const response = await axios.get(`https://yts.mx/api/v2/list_movies.json?${params.toString()}`);
+      const response = await axios.get(
+        "https://yts.mx/api/v2/list_movies.json?sort_by=download_count"
+      );
       return response.data.data.movies;
     },
   });
 
-  const handleFilterClick = (category: string, value: string) => {
-    setFilters(prev => {
-      if (prev[category as keyof typeof prev] === value) {
-        return {
-          ...prev,
-          [category]: ""
-        };
-      }
-      return {
-        ...prev,
-        [category]: value
-      };
-    });
-  };
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-32 w-32 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
-    <div className="px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-12 space-y-4 text-center">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-            Download HD Movies
-          </h1>
-          <p className="text-lg text-gray-400">
-            Browse and download your favorite movies in high quality
-          </p>
-          <div className="flex justify-center">
-            <SearchBar />
-          </div>
-          <div className="flex justify-center pt-4">
-            <NavigationMenu>
-              <NavigationMenuList className="flex flex-wrap gap-2 justify-center">
-                {[
-                  { label: "Quality", items: qualities, key: "quality" },
-                  { label: "Genre", items: genres, key: "genre" },
-                  { label: "Year", items: years, key: "year" },
-                  { label: "Rating", items: ratings, key: "rating" },
-                  { label: "Language", items: languages, key: "language" },
-                  { label: "Order By", items: orderBy, key: "sort_by" },
-                ].map((category) => (
-                  <NavigationMenuItem key={category.label}>
-                    <NavigationMenuTrigger>
-                      {category.label}: {filters[category.key as keyof typeof filters] || "All"}
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <div className="grid gap-1 p-4 w-40">
-                        {category.items.map((item) => (
-                          <Button
-                            key={item}
-                            variant={filters[category.key as keyof typeof filters] === item ? "default" : "ghost"}
-                            className="justify-start"
-                            onClick={() => handleFilterClick(category.key, item)}
-                          >
-                            {item}
-                          </Button>
-                        ))}
-                      </div>
-                    </NavigationMenuContent>
-                  </NavigationMenuItem>
-                ))}
-              </NavigationMenuList>
-            </NavigationMenu>
-          </div>
-        </div>
-        <MovieGrid movies={data || []} isLoading={isLoading} />
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="mb-8 text-4xl font-bold">Popular Downloads</h1>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {movies?.map((movie: any) => (
+          <Link key={movie.id} to={`/movie/${movie.id}`}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="group relative aspect-[2/3] overflow-hidden rounded-lg"
+            >
+              <img
+                src={movie.medium_cover_image}
+                alt={movie.title}
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <h2 className="text-lg font-semibold">{movie.title}</h2>
+                <p className="text-sm text-gray-300">
+                  {movie.year} • {movie.rating}/10
+                </p>
+              </div>
+            </motion.div>
+          </Link>
+        ))}
       </div>
     </div>
   );

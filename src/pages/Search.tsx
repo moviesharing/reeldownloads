@@ -1,37 +1,66 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { MovieGrid } from "@/components/MovieGrid";
-import { SearchBar } from "@/components/SearchBar";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useDebounce } from "@/hooks/use-debounce";
+import MovieCard from "@/components/MovieCard";
 
 const Search = () => {
-  const [searchParams] = useSearchParams();
-  const query = searchParams.get("q");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["search", query],
+  useEffect(() => {
+    document.title = "Search Movies - MovieDownloads";
+  }, []);
+
+  const { data: movies, isLoading } = useQuery({
+    queryKey: ["search", debouncedSearchTerm],
     queryFn: async () => {
+      if (!debouncedSearchTerm) return { movies: [] };
       const response = await axios.get(
-        `https://yts.mx/api/v2/list_movies.json?query_term=${query}`
+        `https://yts.mx/api/v2/list_movies.json?query_term=${debouncedSearchTerm}`
       );
-      return response.data.data.movies;
+      return response.data.data;
     },
-    enabled: !!query,
+    enabled: debouncedSearchTerm.length > 0,
   });
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchParams({ q: searchTerm });
+  };
+
   return (
-    <div className="min-h-screen bg-background px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-12 space-y-4">
-          <div className="flex justify-center">
-            <SearchBar />
-          </div>
-          <h2 className="text-center text-2xl font-semibold">
-            Search results for: {query}
-          </h2>
+    <div className="container mx-auto px-4 py-8">
+      <form onSubmit={handleSearch} className="mb-8 flex gap-4">
+        <Input
+          type="search"
+          placeholder="Search movies..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-xl"
+        />
+        <Button type="submit">Search</Button>
+      </form>
+
+      {isLoading ? (
+        <div className="flex justify-center">
+          <div className="h-32 w-32 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         </div>
-        <MovieGrid movies={data || []} isLoading={isLoading} />
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {movies?.movies?.map((movie: any) => (
+            <MovieCard key={movie.id} movie={movie} />
+          ))}
+        </div>
+      )}
+
+      {movies?.movies?.length === 0 && debouncedSearchTerm && (
+        <p className="text-center text-gray-500">No movies found</p>
+      )}
     </div>
   );
 };
