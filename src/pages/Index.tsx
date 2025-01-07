@@ -1,8 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { MovieGrid } from "@/components/MovieGrid";
 import { SearchBar } from "@/components/SearchBar";
-import NavigationBar from "@/components/NavigationBar";
-import Footer from "@/components/Footer";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -42,7 +40,6 @@ const Index = () => {
     queryFn: async () => {
       const params = new URLSearchParams();
       
-      // Add filters to params if they are set
       if (filters.quality) params.append("quality", filters.quality);
       if (filters.genre && filters.genre !== "All") params.append("genre", filters.genre);
       if (filters.year) params.append("year", filters.year);
@@ -50,7 +47,6 @@ const Index = () => {
       if (filters.language) params.append("language", filters.language);
       if (filters.sort_by) params.append("sort_by", filters.sort_by);
       
-      // Always include these default parameters
       params.append("limit", "20");
       params.append("page", "1");
 
@@ -61,14 +57,12 @@ const Index = () => {
 
   const handleFilterClick = (category: string, value: string) => {
     setFilters(prev => {
-      // If clicking on the same filter value, remove it
       if (prev[category as keyof typeof prev] === value) {
         return {
           ...prev,
           [category]: ""
         };
       }
-      // Otherwise, set the new filter value
       return {
         ...prev,
         [category]: value
@@ -77,59 +71,55 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <NavigationBar />
-      <div className="px-4 py-8 sm:px-6 lg:px-8 flex-grow">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-12 space-y-4 text-center">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-              Download HD Movies
-            </h1>
-            <p className="text-lg text-gray-400">
-              Browse and download your favorite movies in high quality
-            </p>
-            <div className="flex justify-center">
-              <SearchBar />
-            </div>
-            <div className="flex justify-center pt-4">
-              <NavigationMenu>
-                <NavigationMenuList className="flex flex-wrap gap-2 justify-center">
-                  {[
-                    { label: "Quality", items: qualities, key: "quality" },
-                    { label: "Genre", items: genres, key: "genre" },
-                    { label: "Year", items: years, key: "year" },
-                    { label: "Rating", items: ratings, key: "rating" },
-                    { label: "Language", items: languages, key: "language" },
-                    { label: "Order By", items: orderBy, key: "sort_by" },
-                  ].map((category) => (
-                    <NavigationMenuItem key={category.label}>
-                      <NavigationMenuTrigger>
-                        {category.label}: {filters[category.key as keyof typeof filters] || "All"}
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <div className="grid gap-1 p-4 w-40">
-                          {category.items.map((item) => (
-                            <Button
-                              key={item}
-                              variant={filters[category.key as keyof typeof filters] === item ? "default" : "ghost"}
-                              className="justify-start"
-                              onClick={() => handleFilterClick(category.key, item)}
-                            >
-                              {item}
-                            </Button>
-                          ))}
-                        </div>
-                      </NavigationMenuContent>
-                    </NavigationMenuItem>
-                  ))}
-                </NavigationMenuList>
-              </NavigationMenu>
-            </div>
+    <div className="px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-12 space-y-4 text-center">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
+            Download HD Movies
+          </h1>
+          <p className="text-lg text-gray-400">
+            Browse and download your favorite movies in high quality
+          </p>
+          <div className="flex justify-center">
+            <SearchBar />
           </div>
-          <MovieGrid movies={data || []} isLoading={isLoading} />
+          <div className="flex justify-center pt-4">
+            <NavigationMenu>
+              <NavigationMenuList className="flex flex-wrap gap-2 justify-center">
+                {[
+                  { label: "Quality", items: qualities, key: "quality" },
+                  { label: "Genre", items: genres, key: "genre" },
+                  { label: "Year", items: years, key: "year" },
+                  { label: "Rating", items: ratings, key: "rating" },
+                  { label: "Language", items: languages, key: "language" },
+                  { label: "Order By", items: orderBy, key: "sort_by" },
+                ].map((category) => (
+                  <NavigationMenuItem key={category.label}>
+                    <NavigationMenuTrigger>
+                      {category.label}: {filters[category.key as keyof typeof filters] || "All"}
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <div className="grid gap-1 p-4 w-40">
+                        {category.items.map((item) => (
+                          <Button
+                            key={item}
+                            variant={filters[category.key as keyof typeof filters] === item ? "default" : "ghost"}
+                            className="justify-start"
+                            onClick={() => handleFilterClick(category.key, item)}
+                          >
+                            {item}
+                          </Button>
+                        ))}
+                      </div>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
         </div>
+        <MovieGrid movies={data || []} isLoading={isLoading} />
       </div>
-      <Footer />
     </div>
   );
 };
