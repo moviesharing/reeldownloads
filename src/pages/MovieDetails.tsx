@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import Footer from "@/components/Footer";
 import axios from "axios";
+import { useEffect } from "react";
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -17,6 +17,12 @@ const MovieDetails = () => {
       return response.data.data.movie;
     },
   });
+
+  useEffect(() => {
+    if (movie?.title) {
+      document.title = `${movie.title} - MovieDownloads`;
+    }
+  }, [movie?.title]);
 
   if (isLoading) {
     return (
@@ -92,7 +98,6 @@ const MovieDetails = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };
