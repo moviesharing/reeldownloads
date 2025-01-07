@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 import { useEffect } from "react";
 
 const MovieDetails = () => {
@@ -12,19 +12,17 @@ const MovieDetails = () => {
     queryKey: ["movie", id],
     queryFn: async () => {
       const response = await axios.get(
-        `https://yts.mx/api/v2/movie_details.json?movie_id=${id}`
+        `https://yts.mx/api/v2/movie_details.json?movie_id=${id}&with_images=true&with_cast=true`
       );
       return response.data.data.movie;
     },
   });
 
   useEffect(() => {
-    if (movie?.title) {
+    if (movie) {
       document.title = `${movie.title} - MovieDownloads`;
-    } else {
-      document.title = "Loading Movie - MovieDownloads";
     }
-  }, [movie?.title]);
+  }, [movie]);
 
   if (isLoading) {
     return (
@@ -34,69 +32,52 @@ const MovieDetails = () => {
     );
   }
 
-  if (!movie) return null;
-
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <div className="relative h-[70vh]">
-        <div className="absolute inset-0">
-          <img
-            src={movie.background_image_original}
-            alt={movie.title}
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 p-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="grid gap-8 md:grid-cols-[300px,1fr]">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="relative aspect-[2/3] overflow-hidden rounded-lg"
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8 grid gap-8 md:grid-cols-[300px,1fr]">
+        <img
+          src={movie.large_cover_image}
+          alt={movie.title}
+          className="h-[450px] w-full rounded-lg object-cover"
+        />
+        <div>
+          <h1 className="mb-4 text-4xl font-bold">{movie.title}</h1>
+          <div className="mb-4 flex flex-wrap gap-2">
+            {movie.genres?.map((genre: string) => (
+              <span
+                key={genre}
+                className="rounded-full bg-white/10 px-3 py-1 text-sm"
               >
-                <img
-                  src={movie.large_cover_image}
-                  alt={movie.title}
-                  className="h-full w-full object-cover"
-                />
-              </motion.div>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex flex-wrap gap-2">
-                    {movie.genres?.map((genre: string) => (
-                      <span
-                        key={genre}
-                        className="rounded bg-white/10 px-2 py-1 text-sm"
-                      >
-                        {genre}
-                      </span>
-                    ))}
+                {genre}
+              </span>
+            ))}
+          </div>
+          <p className="mb-4 text-lg">{movie.description_full}</p>
+          <div className="mb-4">
+            <p>Year: {movie.year}</p>
+            <p>Rating: {movie.rating}/10</p>
+            <p>Runtime: {movie.runtime} minutes</p>
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold">Downloads</h2>
+            {movie.torrents?.map((torrent: any) => (
+              <Button
+                key={torrent.url}
+                className="flex w-full items-center justify-between gap-4 bg-gray-800"
+                variant="secondary"
+                asChild
+              >
+                <a href={torrent.url} target="_blank" rel="noopener noreferrer">
+                  <div className="flex items-center gap-2">
+                    <Download className="h-4 w-4" />
+                    <span className="text-white">
+                      {torrent.quality} • {torrent.size}
+                    </span>
                   </div>
-                  <h1 className="text-4xl font-bold">{movie.title}</h1>
-                  <p className="text-xl text-gray-400">
-                    {movie.year} • {movie.rating}/10
-                  </p>
-                </div>
-                <p className="text-lg text-gray-300">{movie.description_full}</p>
-                <div className="space-y-4 pt-4">
-                  <h2 className="text-xl font-semibold">Downloads</h2>
-                  <div className="flex flex-wrap gap-4">
-                    {movie.torrents?.map((torrent: any) => (
-                      <Button
-                        key={torrent.url}
-                        className="bg-white/10 hover:bg-white/20"
-                        asChild
-                      >
-                        <a href={torrent.url} download>
-                          {torrent.quality} • {torrent.size}
-                        </a>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+                  <span className="text-white">{torrent.type}</span>
+                </a>
+              </Button>
+            ))}
           </div>
         </div>
       </div>
