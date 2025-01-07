@@ -5,7 +5,7 @@ import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useDebounce } from "@/hooks/use-debounce";
-import MovieCard from "@/components/MovieCard";
+import { MovieCard } from "@/components/MovieCard";
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -53,7 +53,14 @@ const Search = () => {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {movies?.movies?.map((movie: any) => (
-            <MovieCard key={movie.id} movie={movie} />
+            <MovieCard
+              key={movie.id}
+              id={movie.id}
+              title={movie.title}
+              year={movie.year}
+              rating={movie.rating}
+              poster={movie.medium_cover_image}
+            />
           ))}
         </div>
       )}
