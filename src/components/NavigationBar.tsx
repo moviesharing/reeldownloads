@@ -1,5 +1,6 @@
 import { Film } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SearchBar } from "./SearchBar";
 
 const NavigationBar = () => {
   return (
@@ -9,6 +10,7 @@ const NavigationBar = () => {
           <Film className="h-6 w-6" />
           <span className="text-lg font-bold">MovieDownloads</span>
         </Link>
+        <SearchBar />
       </div>
     </nav>
   );
