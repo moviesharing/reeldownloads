@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useEffect } from "react";
+import { SearchBar } from "@/components/SearchBar";
 
 const Index = () => {
   useEffect(() => {
@@ -29,7 +30,15 @@ const Index = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-4xl font-bold">Popular Downloads</h1>
+      <div className="mb-12 text-center">
+        <h1 className="mb-4 text-4xl font-bold">Find Your Favorite Movies</h1>
+        <p className="mb-8 text-gray-400">Search from thousands of movies to download</p>
+        <div className="mx-auto max-w-2xl">
+          <SearchBar />
+        </div>
+      </div>
+      
+      <h2 className="mb-8 text-2xl font-bold">Popular Downloads</h2>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {movies?.map((movie: any) => (
           <Link key={movie.id} to={`/movie/${movie.id}`}>
