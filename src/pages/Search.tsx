@@ -35,13 +35,13 @@ const Search = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <form onSubmit={handleSearch} className="mb-8 flex gap-4">
+      <form onSubmit={handleSearch} className="mb-8 flex gap-4 justify-center max-w-2xl mx-auto">
         <Input
           type="search"
           placeholder="Search movies..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-xl"
+          className="flex-1"
         />
         <Button type="submit">Search</Button>
       </form>
