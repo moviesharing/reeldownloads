@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { useEffect } from "react";
 import { SearchBar } from "@/components/SearchBar";
+import Advertisement from "@/components/Advertisement";
 
 const Index = () => {
   useEffect(() => {
@@ -38,6 +39,8 @@ const Index = () => {
         </div>
       </div>
       
+      <Advertisement />
+      
       <h2 className="mb-8 text-2xl font-bold">Popular Downloads</h2>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {movies?.map((movie: any) => (
@@ -63,6 +66,8 @@ const Index = () => {
           </Link>
         ))}
       </div>
+      
+      <Advertisement />
     </div>
   );
 };

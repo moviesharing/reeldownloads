@@ -1,40 +1,35 @@
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useDebounce } from "@/hooks/use-debounce";
-import { MovieCard } from "@/components/MovieCard";
+import { MovieGrid } from "@/components/MovieGrid";
+import Advertisement from "@/components/Advertisement";
 
 const Search = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-
-  useEffect(() => {
-    document.title = "Search Movies - MovieDownloads";
-  }, []);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [query, setQuery] = useState("");
 
   const { data: movies, isLoading } = useQuery({
-    queryKey: ["search", debouncedSearchTerm],
+    queryKey: ["search", query],
     queryFn: async () => {
-      if (!debouncedSearchTerm) return { movies: [] };
+      if (!query) return [];
       const response = await axios.get(
-        `https://yts.mx/api/v2/list_movies.json?query_term=${debouncedSearchTerm}`
+        `https://yts.mx/api/v2/list_movies.json?query_term=${query}`
       );
-      return response.data.data;
+      return response.data.data.movies || [];
     },
-    enabled: debouncedSearchTerm.length > 0,
+    enabled: !!query,
   });
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchParams({ q: searchTerm });
+    setQuery(searchTerm);
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Advertisement />
       <form onSubmit={handleSearch} className="mb-8 flex gap-4 justify-center max-w-2xl mx-auto">
         <Input
           type="search"
@@ -46,28 +41,16 @@ const Search = () => {
         <Button type="submit">Search</Button>
       </form>
 
-      {isLoading ? (
-        <div className="flex justify-center">
-          <div className="h-32 w-32 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {movies?.movies?.map((movie: any) => (
-            <MovieCard
-              key={movie.id}
-              id={movie.id}
-              title={movie.title}
-              year={movie.year}
-              rating={movie.rating}
-              poster={movie.medium_cover_image}
-            />
-          ))}
+      {query && (
+        <div className="mb-4">
+          <h2 className="text-2xl font-bold">
+            Search Results for "{query}"
+          </h2>
         </div>
       )}
 
-      {movies?.movies?.length === 0 && debouncedSearchTerm && (
-        <p className="text-center text-gray-500">No movies found</p>
-      )}
+      <MovieGrid movies={movies || []} isLoading={isLoading} />
+      <Advertisement />
     </div>
   );
 };

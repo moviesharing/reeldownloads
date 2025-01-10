@@ -4,6 +4,7 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { useEffect } from "react";
+import Advertisement from "@/components/Advertisement";
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -34,6 +35,7 @@ const MovieDetails = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Advertisement />
       <div className="mb-8 grid gap-8 md:grid-cols-[300px,1fr]">
         <img
           src={movie.large_cover_image}
@@ -81,6 +83,7 @@ const MovieDetails = () => {
           </div>
         </div>
       </div>
+      <Advertisement />
     </div>
   );
 };
