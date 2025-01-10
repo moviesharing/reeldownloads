@@ -1,15 +1,25 @@
 import { Input } from "./ui/input";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export const SearchBar = () => {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  // Initialize query from URL if it exists
+  useState(() => {
+    const urlQuery = searchParams.get("q");
+    if (urlQuery) {
+      setQuery(urlQuery);
+    }
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
-      navigate(`/search?q=${encodeURIComponent(query)}`);
+      // Navigate directly to search results
+      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
     }
   };
 

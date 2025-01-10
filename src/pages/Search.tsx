@@ -1,14 +1,13 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { MovieGrid } from "@/components/MovieGrid";
 import Advertisement from "@/components/Advertisement";
+import { useSearchParams } from "react-router-dom";
+import { SearchBar } from "@/components/SearchBar";
 
 const Search = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [query, setQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("q") || "";
 
   const { data: movies, isLoading } = useQuery({
     queryKey: ["search", query],
@@ -22,24 +21,12 @@ const Search = () => {
     enabled: !!query,
   });
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setQuery(searchTerm);
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
       <Advertisement />
-      <form onSubmit={handleSearch} className="mb-8 flex gap-4 justify-center max-w-2xl mx-auto">
-        <Input
-          type="search"
-          placeholder="Search movies..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1"
-        />
-        <Button type="submit">Search</Button>
-      </form>
+      <div className="mb-8 flex justify-center max-w-2xl mx-auto">
+        <SearchBar />
+      </div>
 
       {query && (
         <div className="mb-4">
