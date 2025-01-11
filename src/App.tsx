@@ -8,6 +8,7 @@ import Footer from "./components/Footer";
 import Index from "./pages/Index";
 import MovieDetails from "./pages/MovieDetails";
 import Search from "./pages/Search";
+import Blog from "./pages/Blog";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/movie/:id" element={<MovieDetails />} />
               <Route path="/search" element={<Search />} />
+              <Route path="/blog" element={<Blog />} />
             </Routes>
           </main>
           <Footer />

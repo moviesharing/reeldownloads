@@ -9,6 +9,14 @@ const NavigationBar = () => {
           <Film className="h-6 w-6" />
           <span className="text-lg font-bold">MovieDownloads</span>
         </Link>
+        <div className="flex gap-6">
+          <Link to="/" className="text-sm font-medium transition-colors hover:text-primary">
+            Home
+          </Link>
+          <Link to="/blog" className="text-sm font-medium transition-colors hover:text-primary">
+            Blog
+          </Link>
+        </div>
       </div>
     </nav>
   );
