@@ -5,8 +5,8 @@ const Advertisement = () => {
     <div className="w-full max-w-[728px] h-[90px] mx-auto my-4">
       <div id="frame" className="w-full h-full">
         <iframe
-          data-aa='2375263'
-          src='//acceptable.a-ads.com/2375263'
+          data-aa='2375602'
+          src='//acceptable.a-ads.com/2375602'
           style={{
             border: '0px',
             padding: 0,
@@ -18,8 +18,8 @@ const Advertisement = () => {
         />
         <a
           className="block text-right text-xs text-gray-400 hover:text-gray-300"
-          id="preview-link"
-          href="https://aads.com/campaigns/new/?source_id=2375263&source_type=ad_unit&partner=2375263"
+          id="frame-link"
+          href="https://aads.com/campaigns/new/?source_id=2375602&source_type=ad_unit&partner=2375602"
           target="_blank"
           rel="noopener noreferrer"
         >
