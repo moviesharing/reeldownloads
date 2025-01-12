@@ -8,7 +8,7 @@ import Advertisement from "@/components/Advertisement";
 
 const Index = () => {
   useEffect(() => {
-    document.title = "MovieDownloads - Home";
+    document.title = "ReelDownloads - Home";
   }, []);
 
   const { data: movies, isLoading } = useQuery({

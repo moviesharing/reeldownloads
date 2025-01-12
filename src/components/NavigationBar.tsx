@@ -1,4 +1,3 @@
-import { Popcorn } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const NavigationBar = () => {
@@ -8,10 +7,10 @@ const NavigationBar = () => {
         <Link to="/" className="flex items-center gap-2">
           <img 
             src="/lovable-uploads/33af9f7b-8189-4a40-aafe-1a20de963eda.png" 
-            alt="MovieDownloads Logo" 
+            alt="ReelDownloads Logo" 
             className="h-8 w-8"
           />
-          <span className="text-lg font-bold">MovieDownloads</span>
+          <span className="text-lg font-bold">ReelDownloads</span>
         </Link>
         <div className="flex gap-6">
           <Link to="/" className="text-sm font-medium transition-colors hover:text-primary">

@@ -21,7 +21,7 @@ const MovieDetails = () => {
 
   useEffect(() => {
     if (movie) {
-      document.title = `${movie.title} - MovieDownloads`;
+      document.title = `${movie.title} - ReelDownloads`;
     }
   }, [movie]);
 
