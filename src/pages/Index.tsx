@@ -19,20 +19,20 @@ const Index = () => {
     document.title = "ReelDownloads - Home";
   }, []);
 
-  const { data: movies, isLoading } = useQuery({
+  const { data: movies = [], isLoading, error } = useQuery({
     queryKey: ["movies"],
     queryFn: async () => {
       const response = await axios.get(
         "https://yts.mx/api/v2/list_movies.json?sort_by=download_count"
       );
-      return response.data.data.movies;
+      return response.data.data.movies || [];
     },
   });
 
-  if (isLoading) {
+  if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="h-32 w-32 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <p className="text-red-500">Error loading movies. Please try again later.</p>
       </div>
     );
   }

@@ -16,7 +16,12 @@ interface MovieGridProps {
   selectedGenre: string;
 }
 
-export const MovieGrid = ({ movies, isLoading, selectedGenre }: MovieGridProps) => {
+export const MovieGrid = ({ movies = [], isLoading, selectedGenre }: MovieGridProps) => {
+  // Add null check for movies array
+  if (!movies) {
+    return null;
+  }
+
   const filteredMovies = selectedGenre === "All" 
     ? movies 
     : movies.filter((movie) => movie.genres?.includes(selectedGenre));
