@@ -9,6 +9,7 @@ import MoviePoster from "@/components/movie-details/MoviePoster";
 import MovieInfo from "@/components/movie-details/MovieInfo";
 import DownloadSection from "@/components/movie-details/DownloadSection";
 import LoadingSkeleton from "@/components/movie-details/LoadingSkeleton";
+import Reviews from "@/components/movie-details/Reviews";
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -74,6 +75,7 @@ const MovieDetails = () => {
           <DownloadSection torrents={movie.torrents} />
         </div>
       </div>
+      <Reviews movieId={movie.id} />
       <Advertisement />
     </motion.div>
   );
