@@ -5,8 +5,12 @@ import axios from "axios";
 import { useEffect } from "react";
 import { SearchBar } from "@/components/SearchBar";
 import Advertisement from "@/components/Advertisement";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
+import { RecentlyViewed } from "@/components/RecentlyViewed";
 
 const Index = () => {
+  const { recentMovies } = useRecentlyViewed();
+
   useEffect(() => {
     document.title = "ReelDownloads - Home";
   }, []);
@@ -41,6 +45,12 @@ const Index = () => {
       
       <Advertisement />
       
+      {recentMovies.length > 0 && (
+        <div className="mb-12">
+          <RecentlyViewed movies={recentMovies} />
+        </div>
+      )}
+
       <h2 className="mb-8 text-2xl font-bold">Popular Downloads</h2>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {movies?.map((movie: any) => (

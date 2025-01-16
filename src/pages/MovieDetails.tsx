@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { useEffect } from "react";
 import Advertisement from "@/components/Advertisement";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 
 const MovieDetails = () => {
   const { id } = useParams();
+  const { addMovie } = useRecentlyViewed();
 
   const { data: movie, isLoading } = useQuery({
     queryKey: ["movie", id],
@@ -22,8 +24,15 @@ const MovieDetails = () => {
   useEffect(() => {
     if (movie) {
       document.title = `${movie.title} - ReelDownloads`;
+      addMovie({
+        id: movie.id,
+        title: movie.title,
+        year: movie.year,
+        rating: movie.rating,
+        medium_cover_image: movie.medium_cover_image,
+      });
     }
-  }, [movie]);
+  }, [movie, addMovie]);
 
   if (isLoading) {
     return (
