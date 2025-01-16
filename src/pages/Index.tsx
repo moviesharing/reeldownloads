@@ -9,6 +9,7 @@ import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { GenreFilter } from "@/components/GenreFilter";
 import { MovieGrid } from "@/components/MovieGrid";
+import { BackToTop } from "@/components/BackToTop";
 
 const Index = () => {
   const { recentMovies } = useRecentlyViewed();
@@ -62,6 +63,7 @@ const Index = () => {
       <MovieGrid movies={movies} isLoading={isLoading} selectedGenre={selectedGenre} />
       
       <Advertisement />
+      <BackToTop />
     </div>
   );
 };
