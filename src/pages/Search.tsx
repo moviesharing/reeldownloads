@@ -4,10 +4,12 @@ import { MovieGrid } from "@/components/MovieGrid";
 import Advertisement from "@/components/Advertisement";
 import { useSearchParams } from "react-router-dom";
 import { SearchBar } from "@/components/SearchBar";
+import { useState } from "react";
 
 const Search = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
+  const [selectedGenre, setSelectedGenre] = useState("All");
 
   const { data: movies, isLoading } = useQuery({
     queryKey: ["search", query],
@@ -36,7 +38,11 @@ const Search = () => {
         </div>
       )}
 
-      <MovieGrid movies={movies || []} isLoading={isLoading} />
+      <MovieGrid 
+        movies={movies || []} 
+        isLoading={isLoading} 
+        selectedGenre={selectedGenre}
+      />
       <Advertisement />
     </div>
   );
