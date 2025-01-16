@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import FavoriteButton from "./FavoriteButton";
 
 interface MovieInfoProps {
   title: string;
@@ -7,9 +8,20 @@ interface MovieInfoProps {
   year: number;
   rating: number;
   runtime: number;
+  id: number;
+  medium_cover_image: string;
 }
 
-const MovieInfo = ({ title, genres, description, year, rating, runtime }: MovieInfoProps) => {
+const MovieInfo = ({ 
+  title, 
+  genres, 
+  description, 
+  year, 
+  rating, 
+  runtime,
+  id,
+  medium_cover_image 
+}: MovieInfoProps) => {
   return (
     <>
       <motion.h1 
@@ -34,6 +46,22 @@ const MovieInfo = ({ title, genres, description, year, rating, runtime }: MovieI
             {genre}
           </span>
         ))}
+      </motion.div>
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className="mb-4"
+      >
+        <FavoriteButton
+          movie={{
+            id,
+            title,
+            year,
+            rating,
+            medium_cover_image,
+          }}
+        />
       </motion.div>
       <motion.p 
         initial={{ y: 20, opacity: 0 }}

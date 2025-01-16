@@ -62,12 +62,14 @@ const MovieDetails = () => {
         />
         <div>
           <MovieInfo 
+            id={movie.id}
             title={movie.title}
             genres={movie.genres}
             description={movie.description_full}
             year={movie.year}
             rating={movie.rating}
             runtime={movie.runtime}
+            medium_cover_image={movie.medium_cover_image}
           />
           <DownloadSection torrents={movie.torrents} />
         </div>
