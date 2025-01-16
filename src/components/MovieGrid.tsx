@@ -7,14 +7,20 @@ interface Movie {
   year: number;
   rating: number;
   medium_cover_image: string;
+  genres: string[];
 }
 
 interface MovieGridProps {
   movies: Movie[];
   isLoading: boolean;
+  selectedGenre: string;
 }
 
-export const MovieGrid = ({ movies, isLoading }: MovieGridProps) => {
+export const MovieGrid = ({ movies, isLoading, selectedGenre }: MovieGridProps) => {
+  const filteredMovies = selectedGenre === "All" 
+    ? movies 
+    : movies.filter((movie) => movie.genres?.includes(selectedGenre));
+
   if (isLoading) {
     return (
       <div className="movie-grid">
@@ -34,7 +40,7 @@ export const MovieGrid = ({ movies, isLoading }: MovieGridProps) => {
       animate={{ opacity: 1 }}
       className="movie-grid"
     >
-      {movies.map((movie) => (
+      {filteredMovies.map((movie) => (
         <MovieCard
           key={movie.id}
           id={movie.id}
