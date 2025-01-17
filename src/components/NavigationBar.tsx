@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ThemeToggle } from "./ThemeToggle";
 
 const NavigationBar = () => {
   return (
@@ -12,13 +13,14 @@ const NavigationBar = () => {
           />
           <span className="text-lg font-bold">ReelDownloads</span>
         </Link>
-        <div className="flex gap-6">
+        <div className="flex items-center gap-6">
           <Link to="/" className="text-sm font-medium transition-colors hover:text-primary">
             Home
           </Link>
           <Link to="/blog" className="text-sm font-medium transition-colors hover:text-primary">
             Blog
           </Link>
+          <ThemeToggle />
         </div>
       </div>
     </nav>
