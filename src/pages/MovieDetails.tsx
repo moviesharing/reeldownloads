@@ -10,6 +10,7 @@ import MovieInfo from "@/components/movie-details/MovieInfo";
 import DownloadSection from "@/components/movie-details/DownloadSection";
 import LoadingSkeleton from "@/components/movie-details/LoadingSkeleton";
 import Reviews from "@/components/movie-details/Reviews";
+import RelatedMovies from "@/components/movie-details/RelatedMovies";
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -23,6 +24,17 @@ const MovieDetails = () => {
       );
       return response.data.data.movie;
     },
+  });
+
+  const { data: suggestedMovies } = useQuery({
+    queryKey: ["suggested-movies", id],
+    queryFn: async () => {
+      const response = await axios.get(
+        `https://yts.mx/api/v2/movie_suggestions.json?movie_id=${id}`
+      );
+      return response.data.data.movies;
+    },
+    enabled: !!movie,
   });
 
   useEffect(() => {
@@ -78,6 +90,7 @@ const MovieDetails = () => {
         </div>
       </div>
       <Reviews movieId={movie.id} />
+      <RelatedMovies movies={suggestedMovies || []} />
       <Advertisement />
     </motion.div>
   );
