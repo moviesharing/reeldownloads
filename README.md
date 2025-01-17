@@ -1,18 +1,12 @@
 # Welcome to your Lovable project
 
-## Project info
+## Project Live Preview
 
 **URL**: https://lovable.dev/projects/6ee9592a-2eee-4e3b-87a7-9e6a3acbed19
 
 ## How can I edit this code?
 
 There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/6ee9592a-2eee-4e3b-87a7-9e6a3acbed19) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
 
 **Use your preferred IDE**
 
@@ -50,7 +44,7 @@ npm run dev
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
 
-## What technologies are used for this project?
+## What technologies I used for this project?
 
 This project is built with .
 
@@ -59,11 +53,3 @@ This project is built with .
 - React
 - shadcn-ui
 - Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/6ee9592a-2eee-4e3b-87a7-9e6a3acbed19) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
