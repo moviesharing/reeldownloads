@@ -1,6 +1,12 @@
 import { motion } from "framer-motion";
 import FavoriteButton from "./FavoriteButton";
 
+interface CastMember {
+  name: string;
+  character_name?: string;
+  url_small_image?: string;
+}
+
 interface MovieInfoProps {
   title: string;
   genres: string[];
@@ -11,6 +17,7 @@ interface MovieInfoProps {
   id: number;
   medium_cover_image: string;
   yt_trailer_code?: string;
+  cast?: CastMember[];
 }
 
 const MovieInfo = ({ 
@@ -22,7 +29,8 @@ const MovieInfo = ({
   runtime,
   id,
   medium_cover_image,
-  yt_trailer_code 
+  yt_trailer_code,
+  cast
 }: MovieInfoProps) => {
   return (
     <>
@@ -99,6 +107,49 @@ const MovieInfo = ({
         <p>Rating: {rating}/10</p>
         <p>Runtime: {runtime} minutes</p>
       </motion.div>
+      {cast && cast.length > 0 && (
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="mt-8"
+        >
+          <h2 className="mb-4 text-2xl font-semibold">Cast</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {cast.map((member, index) => (
+              <motion.div
+                key={member.name + index}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 * index }}
+                className="flex flex-col items-center text-center"
+              >
+                <div className="mb-2 h-32 w-32 overflow-hidden rounded-full">
+                  {member.url_small_image ? (
+                    <img
+                      src={member.url_small_image}
+                      alt={member.name}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/placeholder.svg";
+                      }}
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gray-700">
+                      <span className="text-3xl">{member.name.charAt(0)}</span>
+                    </div>
+                  )}
+                </div>
+                <p className="font-semibold">{member.name}</p>
+                {member.character_name && (
+                  <p className="text-sm text-gray-400">{member.character_name}</p>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </>
   );
 };

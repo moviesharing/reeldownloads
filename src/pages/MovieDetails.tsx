@@ -71,6 +71,8 @@ const MovieDetails = () => {
             rating={movie.rating}
             runtime={movie.runtime}
             medium_cover_image={movie.medium_cover_image}
+            yt_trailer_code={movie.yt_trailer_code}
+            cast={movie.cast}
           />
           <DownloadSection torrents={movie.torrents} />
         </div>
