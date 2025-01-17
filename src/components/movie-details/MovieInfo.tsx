@@ -10,6 +10,7 @@ interface MovieInfoProps {
   runtime: number;
   id: number;
   medium_cover_image: string;
+  yt_trailer_code?: string;
 }
 
 const MovieInfo = ({ 
@@ -20,7 +21,8 @@ const MovieInfo = ({
   rating, 
   runtime,
   id,
-  medium_cover_image 
+  medium_cover_image,
+  yt_trailer_code 
 }: MovieInfoProps) => {
   return (
     <>
@@ -63,6 +65,22 @@ const MovieInfo = ({
           }}
         />
       </motion.div>
+      {yt_trailer_code && (
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="mb-8 aspect-video w-full overflow-hidden rounded-lg"
+        >
+          <iframe
+            src={`https://www.youtube.com/embed/${yt_trailer_code}`}
+            title={`${title} Trailer`}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="h-full w-full"
+          />
+        </motion.div>
+      )}
       <motion.p 
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
