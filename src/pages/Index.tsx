@@ -23,11 +23,15 @@ const Index = () => {
     queryKey: ["movies"],
     queryFn: async () => {
       const response = await axios.get(
-        "https://yts.mx/api/v2/list_movies.json?sort_by=download_count"
+        "https://yts.mx/api/v2/list_movies.json?sort_by=download_count&limit=50"
       );
       return response.data.data.movies || [];
     },
   });
+
+  const handleGenreChange = (genre: string) => {
+    setSelectedGenre(genre);
+  };
 
   if (error) {
     return (
@@ -55,12 +59,16 @@ const Index = () => {
         </div>
       )}
 
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <h2 className="text-2xl font-bold">Popular Downloads</h2>
-        <GenreFilter selectedGenre={selectedGenre} onGenreChange={setSelectedGenre} />
+        <GenreFilter selectedGenre={selectedGenre} onGenreChange={handleGenreChange} />
       </div>
 
-      <MovieGrid movies={movies} isLoading={isLoading} selectedGenre={selectedGenre} />
+      <MovieGrid 
+        movies={movies} 
+        isLoading={isLoading} 
+        selectedGenre={selectedGenre}
+      />
       
       <Advertisement />
       <BackToTop />
