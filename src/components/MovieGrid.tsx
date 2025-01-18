@@ -1,5 +1,6 @@
 import { MovieCard } from "./MovieCard";
 import { motion, AnimatePresence } from "framer-motion";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Movie {
   id: number;
@@ -29,10 +30,17 @@ export const MovieGrid = ({ movies = [], isLoading, selectedGenre }: MovieGridPr
     return (
       <div className="movie-grid">
         {[...Array(8)].map((_, i) => (
-          <div
+          <motion.div
             key={i}
-            className="animate-pulse rounded-lg bg-gray-800 aspect-[2/3]"
-          />
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: i * 0.1 }}
+            className="relative aspect-[2/3]"
+          >
+            <Skeleton className="h-full w-full rounded-lg">
+              <div className="absolute inset-0 loading-shimmer" />
+            </Skeleton>
+          </motion.div>
         ))}
       </div>
     );

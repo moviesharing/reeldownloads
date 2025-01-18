@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface MovieCardProps {
   id: number;
@@ -24,11 +25,11 @@ export const MovieCard = ({ id, title, year, rating, poster }: MovieCardProps) =
       <Link to={`/movie/${id}`} className="block">
         <div className="relative aspect-[2/3] overflow-hidden rounded-lg">
           {!imageLoaded && (
-            <img
-              src={placeholderImage}
-              alt="Loading..."
-              className="absolute inset-0 h-full w-full object-cover blur-sm"
-            />
+            <div className="absolute inset-0">
+              <Skeleton className="h-full w-full">
+                <div className="absolute inset-0 loading-shimmer" />
+              </Skeleton>
+            </div>
           )}
           <motion.img
             src={poster}
@@ -39,6 +40,11 @@ export const MovieCard = ({ id, title, year, rating, poster }: MovieCardProps) =
             animate={{ opacity: imageLoaded ? 1 : 0 }}
             transition={{ duration: 0.5 }}
             onLoad={() => setImageLoaded(true)}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = placeholderImage;
+              setImageLoaded(true);
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
           <div className="absolute bottom-0 w-full p-4">
