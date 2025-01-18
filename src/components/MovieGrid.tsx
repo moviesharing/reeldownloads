@@ -17,7 +17,6 @@ interface MovieGridProps {
 }
 
 export const MovieGrid = ({ movies = [], isLoading, selectedGenre }: MovieGridProps) => {
-  // Add null check for movies array
   if (!movies) {
     return null;
   }
@@ -26,7 +25,7 @@ export const MovieGrid = ({ movies = [], isLoading, selectedGenre }: MovieGridPr
     ? movies 
     : movies.filter((movie) => movie.genres?.includes(selectedGenre));
 
-  if (isLoading) {
+  if (isLoading && movies.length === 0) {
     return (
       <div className="movie-grid">
         {[...Array(8)].map((_, i) => (

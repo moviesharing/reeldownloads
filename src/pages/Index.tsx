@@ -10,28 +10,49 @@ import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { GenreFilter } from "@/components/GenreFilter";
 import { MovieGrid } from "@/components/MovieGrid";
 import { BackToTop } from "@/components/BackToTop";
+import { useInView } from "framer-motion";
+import { useRef } from "react";
 
 const Index = () => {
   const { recentMovies } = useRecentlyViewed();
   const [selectedGenre, setSelectedGenre] = useState("All");
+  const [page, setPage] = useState(1);
+  const loadMoreRef = useRef(null);
+  const isInView = useInView(loadMoreRef);
 
   useEffect(() => {
     document.title = "ReelDownloads - Home";
   }, []);
 
-  const { data: movies = [], isLoading, error } = useQuery({
-    queryKey: ["movies"],
-    queryFn: async () => {
-      const response = await axios.get(
-        "https://yts.mx/api/v2/list_movies.json?sort_by=download_count&limit=50"
-      );
-      return response.data.data.movies || [];
-    },
-  });
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = 
+    useQuery({
+      queryKey: ["movies", page],
+      queryFn: async ({ pageParam = 1 }) => {
+        const response = await axios.get(
+          `https://yts.mx/api/v2/list_movies.json?sort_by=download_count&limit=20&page=${pageParam}`
+        );
+        return response.data.data;
+      },
+      getNextPageParam: (lastPage, pages) => {
+        if (lastPage.movie_count > pages.length * 20) {
+          return pages.length + 1;
+        }
+        return undefined;
+      },
+    });
+
+  useEffect(() => {
+    if (isInView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [isInView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleGenreChange = (genre: string) => {
     setSelectedGenre(genre);
+    setPage(1);
   };
+
+  const allMovies = data?.pages?.flatMap((page) => page.movies) || [];
 
   if (error) {
     return (
@@ -65,10 +86,21 @@ const Index = () => {
       </div>
 
       <MovieGrid 
-        movies={movies} 
+        movies={allMovies} 
         isLoading={isLoading} 
         selectedGenre={selectedGenre}
       />
+      
+      {!isLoading && (
+        <div
+          ref={loadMoreRef}
+          className="mt-8 flex justify-center"
+        >
+          {isFetchingNextPage && (
+            <div className="animate-pulse text-gray-400">Loading more movies...</div>
+          )}
+        </div>
+      )}
       
       <Advertisement />
       <BackToTop />
