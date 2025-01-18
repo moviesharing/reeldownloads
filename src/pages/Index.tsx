@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -13,6 +13,20 @@ import { BackToTop } from "@/components/BackToTop";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 
+interface Movie {
+  id: number;
+  title: string;
+  year: number;
+  rating: number;
+  medium_cover_image: string;
+  genres: string[];
+}
+
+interface MovieResponse {
+  movie_count: number;
+  movies: Movie[];
+}
+
 const Index = () => {
   const { recentMovies } = useRecentlyViewed();
   const [selectedGenre, setSelectedGenre] = useState("All");
@@ -25,14 +39,15 @@ const Index = () => {
   }, []);
 
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = 
-    useQuery({
+    useInfiniteQuery({
       queryKey: ["movies", page],
       queryFn: async ({ pageParam = 1 }) => {
-        const response = await axios.get(
+        const response = await axios.get<{ data: MovieResponse }>(
           `https://yts.mx/api/v2/list_movies.json?sort_by=download_count&limit=20&page=${pageParam}`
         );
         return response.data.data;
       },
+      initialPageParam: 1,
       getNextPageParam: (lastPage, pages) => {
         if (lastPage.movie_count > pages.length * 20) {
           return pages.length + 1;
