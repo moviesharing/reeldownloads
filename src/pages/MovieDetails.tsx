@@ -1,3 +1,4 @@
+
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -86,7 +87,11 @@ const MovieDetails = () => {
             yt_trailer_code={movie.yt_trailer_code}
             cast={movie.cast}
           />
-          <DownloadSection torrents={movie.torrents} />
+          <DownloadSection 
+            torrents={movie.torrents} 
+            movieId={movie.id}
+            movieTitle={movie.title}
+          />
         </div>
       </div>
       <Reviews movieId={movie.id} />

@@ -1,3 +1,4 @@
+
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -35,7 +36,7 @@ const Index = () => {
   const isInView = useInView(loadMoreRef);
 
   useEffect(() => {
-    document.title = "ReelDownloads - Home";
+    document.title = "ReelStreaming - Home";
   }, []);
 
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = 
@@ -80,8 +81,8 @@ const Index = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-12 text-center">
-        <h1 className="mb-4 text-4xl font-bold">Find Your Favorite Movies</h1>
-        <p className="mb-8 text-gray-400">Search from thousands of movies to download</p>
+        <h1 className="mb-4 text-4xl font-bold">Stream Your Favorite Movies</h1>
+        <p className="mb-8 text-gray-400">Instantly watch thousands of movies in HD quality</p>
         <div className="mx-auto max-w-2xl">
           <SearchBar />
         </div>
@@ -96,7 +97,7 @@ const Index = () => {
       )}
 
       <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold">Popular Downloads</h2>
+        <h2 className="text-2xl font-bold">Popular Streaming</h2>
         <GenreFilter selectedGenre={selectedGenre} onGenreChange={handleGenreChange} />
       </div>
 
