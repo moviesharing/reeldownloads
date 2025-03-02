@@ -1,9 +1,7 @@
-
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlayCircle } from "lucide-react";
 
 interface MovieCardProps {
   id: number;
@@ -25,7 +23,7 @@ export const MovieCard = ({ id, title, year, rating, poster }: MovieCardProps) =
       className="movie-card"
     >
       <Link to={`/movie/${id}`} className="block">
-        <div className="relative aspect-[2/3] overflow-hidden rounded-lg group">
+        <div className="relative aspect-[2/3] overflow-hidden rounded-lg">
           {!imageLoaded && (
             <div className="absolute inset-0">
               <Skeleton className="h-full w-full">
@@ -36,7 +34,7 @@ export const MovieCard = ({ id, title, year, rating, poster }: MovieCardProps) =
           <motion.img
             src={poster}
             alt={title}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+            className="h-full w-full object-cover transition-transform duration-300 hover:scale-110"
             loading="lazy"
             initial={{ opacity: 0 }}
             animate={{ opacity: imageLoaded ? 1 : 0 }}
@@ -49,12 +47,6 @@ export const MovieCard = ({ id, title, year, rating, poster }: MovieCardProps) =
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-          
-          {/* Play button overlay - appears on hover */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <PlayCircle className="w-16 h-16 text-white opacity-80" />
-          </div>
-          
           <div className="absolute bottom-0 w-full p-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
