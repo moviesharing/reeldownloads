@@ -1,8 +1,6 @@
-
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
-import MagnetGenerator from "./MagnetGenerator";
 
 interface Torrent {
   url: string;
@@ -48,8 +46,6 @@ const DownloadSection = ({ torrents }: DownloadSectionProps) => {
           </Button>
         </motion.div>
       ))}
-
-      <MagnetGenerator />
     </motion.div>
   );
 };
