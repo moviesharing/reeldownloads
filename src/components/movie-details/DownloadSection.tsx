@@ -17,8 +17,6 @@ interface DownloadSectionProps {
 }
 
 const DownloadSection = ({ torrents }: DownloadSectionProps) => {
-  const [selectedQuality, setSelectedQuality] = useState<string>("");
-
   // Group torrents by their quality and type
   const groupedTorrents = torrents?.reduce((acc: Record<string, Torrent>, torrent) => {
     const key = `${torrent.quality}-${torrent.type}`;
@@ -47,10 +45,10 @@ const DownloadSection = ({ torrents }: DownloadSectionProps) => {
   // Set the keys of the torrents for tabs
   const torrentKeys = Object.keys(groupedTorrents);
   
-  // Set default selected quality if none is selected yet
-  if (selectedQuality === "" && torrentKeys.length > 0) {
-    setSelectedQuality(torrentKeys[0]);
-  }
+  // Set default selected quality if available
+  const [selectedQuality, setSelectedQuality] = useState<string>(
+    torrentKeys.length > 0 ? torrentKeys[0] : ""
+  );
 
   // Get technical details for the selected torrent
   const getTorrentDetails = (torrentKey: string) => {
@@ -71,6 +69,14 @@ const DownloadSection = ({ torrents }: DownloadSectionProps) => {
     };
   };
 
+  // Function to handle tab change
+  const handleTabChange = (value: string) => {
+    setSelectedQuality(value);
+  };
+
+  // Get current torrent details
+  const currentTorrentDetails = selectedQuality ? getTorrentDetails(selectedQuality) : null;
+
   return (
     <motion.div 
       initial={{ y: 20, opacity: 0 }}
@@ -82,9 +88,8 @@ const DownloadSection = ({ torrents }: DownloadSectionProps) => {
       
       <div className="bg-gray-900 rounded-md overflow-hidden">
         <Tabs 
-          defaultValue={torrentKeys[0]} 
           value={selectedQuality}
-          onValueChange={setSelectedQuality}
+          onValueChange={handleTabChange}
           className="w-full"
         >
           <TabsList className="w-full grid grid-cols-3 md:grid-cols-5 bg-gray-900 rounded-none">
@@ -102,49 +107,49 @@ const DownloadSection = ({ torrents }: DownloadSectionProps) => {
             })}
           </TabsList>
           
-          <div className="p-4 space-y-4">
-            {selectedQuality && (
+          <div className="p-4">
+            {currentTorrentDetails && (
               <div className="grid grid-cols-2 gap-y-6">
                 {/* File Size */}
                 <div className="flex items-center gap-2 text-gray-300">
                   <File className="h-4 w-4" />
-                  <span>{getTorrentDetails(selectedQuality)?.fileSize}</span>
+                  <span>{currentTorrentDetails.fileSize}</span>
                 </div>
                 
                 {/* Resolution */}
                 <div className="flex items-center gap-2 text-gray-300">
                   <Maximize className="h-4 w-4" />
-                  <span>{getTorrentDetails(selectedQuality)?.resolution}</span>
+                  <span>{currentTorrentDetails.resolution}</span>
                 </div>
                 
                 {/* Audio */}
                 <div className="flex items-center gap-2 text-gray-300">
                   <Volume2 className="h-4 w-4" />
-                  <span>{getTorrentDetails(selectedQuality)?.audio}</span>
+                  <span>{currentTorrentDetails.audio}</span>
                 </div>
                 
                 {/* Video Quality */}
                 <div className="flex items-center gap-2 text-gray-300">
                   <Monitor className="h-4 w-4" />
-                  <span>{getTorrentDetails(selectedQuality)?.videoQuality}</span>
+                  <span>{currentTorrentDetails.videoQuality}</span>
                 </div>
                 
                 {/* Frame Rate */}
                 <div className="flex items-center gap-2 text-gray-300">
                   <Monitor className="h-4 w-4" />
-                  <span>{getTorrentDetails(selectedQuality)?.frameRate}</span>
+                  <span>{currentTorrentDetails.frameRate}</span>
                 </div>
                 
                 {/* Duration */}
                 <div className="flex items-center gap-2 text-gray-300">
                   <Clock className="h-4 w-4" />
-                  <span>{getTorrentDetails(selectedQuality)?.duration}</span>
+                  <span>{currentTorrentDetails.duration}</span>
                 </div>
                 
                 {/* Seeds */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-start gap-2">
                   <span className="text-gray-300">Seeds</span>
-                  <span className="text-green-500">{getTorrentDetails(selectedQuality)?.seeds}</span>
+                  <span className="text-green-500">{currentTorrentDetails.seeds}</span>
                 </div>
                 
                 {/* Download Button */}
@@ -154,7 +159,7 @@ const DownloadSection = ({ torrents }: DownloadSectionProps) => {
                     variant="secondary"
                     asChild
                   >
-                    <a href={getTorrentDetails(selectedQuality)?.url} target="_blank" rel="noopener noreferrer">
+                    <a href={currentTorrentDetails.url} target="_blank" rel="noopener noreferrer">
                       <Download className="h-4 w-4 mr-2" />
                       Download
                     </a>

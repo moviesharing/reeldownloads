@@ -1,3 +1,4 @@
+
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -40,15 +41,17 @@ const MovieDetails = () => {
   useEffect(() => {
     if (movie) {
       document.title = `${movie.title} - ReelDownloads`;
-      addMovie({
+      // Use a stable reference for the movie object to prevent infinite re-renders
+      const movieData = {
         id: movie.id,
         title: movie.title,
         year: movie.year,
         rating: movie.rating,
         medium_cover_image: movie.medium_cover_image,
-      });
+      };
+      addMovie(movieData);
     }
-  }, [movie, addMovie]);
+  }, [movie?.id, addMovie]); // Only depend on movie.id, not the entire movie object
 
   if (isLoading) {
     return (
@@ -86,7 +89,7 @@ const MovieDetails = () => {
             yt_trailer_code={movie.yt_trailer_code}
             cast={movie.cast}
           />
-          <DownloadSection torrents={movie.torrents} />
+          <DownloadSection torrents={movie.torrents || []} />
         </div>
       </div>
       <Reviews movieId={movie.id} />
