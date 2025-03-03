@@ -35,7 +35,7 @@ const DownloadSection = ({ torrents }: DownloadSectionProps) => {
       formatType === "WEB";
     
     return (
-      <span>
+      <span className="whitespace-nowrap">
         {qualityValue}p.{formatType}
         {isX265 && <span className="text-green-500 ml-1">x265</span>}
       </span>
@@ -86,74 +86,78 @@ const DownloadSection = ({ torrents }: DownloadSectionProps) => {
     >
       <h2 className="text-2xl font-semibold">Downloads</h2>
       
-      <div className="bg-gray-900 rounded-md overflow-hidden">
-        <Tabs 
-          value={selectedQuality}
-          onValueChange={handleTabChange}
-          className="w-full"
-        >
-          <TabsList className="w-full grid grid-cols-3 md:grid-cols-5 bg-gray-900 rounded-none">
-            {torrentKeys.map((key) => {
-              const [quality, type] = key.split("-");
-              return (
-                <TabsTrigger 
-                  key={key} 
-                  value={key}
-                  className="data-[state=active]:bg-black data-[state=active]:text-white py-3"
-                >
-                  {getFormatLabel(quality, type)}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
-          
-          <div className="p-4">
+      {torrents && torrents.length > 0 ? (
+        <div className="bg-gray-900 rounded-md overflow-hidden">
+          <Tabs 
+            value={selectedQuality}
+            onValueChange={handleTabChange}
+            className="w-full"
+          >
+            <div className="overflow-x-auto">
+              <TabsList className="w-full flex bg-gray-900 rounded-none min-w-max">
+                {torrentKeys.map((key) => {
+                  const [quality, type] = key.split("-");
+                  return (
+                    <TabsTrigger 
+                      key={key} 
+                      value={key}
+                      className="data-[state=active]:bg-black data-[state=active]:text-white py-3 flex-1"
+                    >
+                      {getFormatLabel(quality, type)}
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </div>
+            
             {currentTorrentDetails && (
-              <div className="grid grid-cols-2 gap-y-6">
-                {/* File Size */}
-                <div className="flex items-center gap-2 text-gray-300">
-                  <File className="h-4 w-4" />
-                  <span>{currentTorrentDetails.fileSize}</span>
+              <div className="p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-2">
+                  {/* File Size */}
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <File className="h-4 w-4 flex-shrink-0" />
+                    <span className="text-sm truncate">{currentTorrentDetails.fileSize}</span>
+                  </div>
+                  
+                  {/* Resolution */}
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <Maximize className="h-4 w-4 flex-shrink-0" />
+                    <span className="text-sm truncate">{currentTorrentDetails.resolution}</span>
+                  </div>
+                  
+                  {/* Audio */}
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <Volume2 className="h-4 w-4 flex-shrink-0" />
+                    <span className="text-sm truncate">{currentTorrentDetails.audio}</span>
+                  </div>
+                  
+                  {/* Video Quality */}
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <Monitor className="h-4 w-4 flex-shrink-0" />
+                    <span className="text-sm truncate">{currentTorrentDetails.videoQuality}</span>
+                  </div>
+                  
+                  {/* Frame Rate */}
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <Monitor className="h-4 w-4 flex-shrink-0" />
+                    <span className="text-sm truncate">{currentTorrentDetails.frameRate}</span>
+                  </div>
+                  
+                  {/* Duration */}
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <Clock className="h-4 w-4 flex-shrink-0" />
+                    <span className="text-sm truncate">{currentTorrentDetails.duration}</span>
+                  </div>
                 </div>
                 
-                {/* Resolution */}
-                <div className="flex items-center gap-2 text-gray-300">
-                  <Maximize className="h-4 w-4" />
-                  <span>{currentTorrentDetails.resolution}</span>
-                </div>
-                
-                {/* Audio */}
-                <div className="flex items-center gap-2 text-gray-300">
-                  <Volume2 className="h-4 w-4" />
-                  <span>{currentTorrentDetails.audio}</span>
-                </div>
-                
-                {/* Video Quality */}
-                <div className="flex items-center gap-2 text-gray-300">
-                  <Monitor className="h-4 w-4" />
-                  <span>{currentTorrentDetails.videoQuality}</span>
-                </div>
-                
-                {/* Frame Rate */}
-                <div className="flex items-center gap-2 text-gray-300">
-                  <Monitor className="h-4 w-4" />
-                  <span>{currentTorrentDetails.frameRate}</span>
-                </div>
-                
-                {/* Duration */}
-                <div className="flex items-center gap-2 text-gray-300">
-                  <Clock className="h-4 w-4" />
-                  <span>{currentTorrentDetails.duration}</span>
-                </div>
-                
-                {/* Seeds */}
-                <div className="flex items-start gap-2">
+                {/* Seeds - Full width */}
+                <div className="flex items-center gap-2 mt-4">
                   <span className="text-gray-300">Seeds</span>
                   <span className="text-green-500">{currentTorrentDetails.seeds}</span>
                 </div>
                 
                 {/* Download Button */}
-                <div className="col-span-2 mt-2">
+                <div className="mt-4">
                   <Button
                     className="w-full"
                     variant="secondary"
@@ -167,9 +171,13 @@ const DownloadSection = ({ torrents }: DownloadSectionProps) => {
                 </div>
               </div>
             )}
-          </div>
-        </Tabs>
-      </div>
+          </Tabs>
+        </div>
+      ) : (
+        <div className="bg-gray-900 text-gray-400 rounded-md p-4 text-center">
+          No download options available for this title.
+        </div>
+      )}
     </motion.div>
   );
 };
