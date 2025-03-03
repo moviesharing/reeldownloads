@@ -6,9 +6,9 @@ import ReviewList from "./ReviewList";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, RefreshCw, Info } from "lucide-react";
+import { AlertCircle, RefreshCw, Info, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ReviewsProps {
   movieId: number;
@@ -17,34 +17,12 @@ interface ReviewsProps {
 const Reviews = ({ movieId }: ReviewsProps) => {
   const { reviews, addReview, isLoading, error, refetchReviews, isRefetching } = useReviews(movieId);
   const { toast } = useToast();
-  const [wasOffline, setWasOffline] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
-  // Check if we're online after being offline
-  const checkOnlineStatus = () => {
-    if (window.navigator.onLine && wasOffline) {
-      setWasOffline(false);
-      refetchReviews();
-      toast({
-        title: "You're back online",
-        description: "Attempting to fetch the latest reviews.",
-      });
-    }
-  };
-
-  // Listen for online/offline events
-  useState(() => {
-    const handleOnline = () => {
-      checkOnlineStatus();
-    };
-
-    const handleOffline = () => {
-      setWasOffline(true);
-      toast({
-        title: "You're offline",
-        description: "We'll show locally saved reviews until you're back online.",
-        variant: "destructive",
-      });
-    };
+  // Track online/offline status
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -53,21 +31,22 @@ const Reviews = ({ movieId }: ReviewsProps) => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  });
+  }, []);
 
   const handleSubmitReview = (reviewData: { rating: number; comment: string; author: string }) => {
-    if (!window.navigator.onLine) {
-      toast({
-        title: "You're offline",
-        description: "Your review will be saved locally and uploaded when you're back online.",
-        variant: "destructive",
-      });
-    }
-    
     addReview({ movieId, ...reviewData });
   };
 
   const handleRefresh = () => {
+    if (isOffline) {
+      toast({
+        title: "You're offline",
+        description: "Please check your internet connection and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     refetchReviews();
   };
 
@@ -84,7 +63,7 @@ const Reviews = ({ movieId }: ReviewsProps) => {
           variant="outline" 
           size="sm" 
           onClick={handleRefresh}
-          disabled={isRefetching}
+          disabled={isRefetching || isLoading}
           className="flex items-center gap-1"
         >
           <RefreshCw className={`h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`} />
@@ -93,9 +72,9 @@ const Reviews = ({ movieId }: ReviewsProps) => {
       </div>
       
       <div className="space-y-8">
-        {!window.navigator.onLine && (
-          <Alert variant="destructive">
-            <Info className="h-4 w-4" />
+        {isOffline && (
+          <Alert variant="warning">
+            <WifiOff className="h-4 w-4" />
             <AlertTitle>You're offline</AlertTitle>
             <AlertDescription>
               You're viewing locally saved reviews. Connect to the internet to see the latest reviews.
@@ -103,10 +82,10 @@ const Reviews = ({ movieId }: ReviewsProps) => {
           </Alert>
         )}
         
-        {error && (
+        {error && !isOffline && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
+            <AlertTitle>Error loading reviews</AlertTitle>
             <AlertDescription>
               {error}
               <div className="mt-2">

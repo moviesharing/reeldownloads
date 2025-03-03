@@ -38,6 +38,11 @@ export const useReviews = (movieId: number) => {
     try {
       console.log(`Fetching reviews for movie ID: ${movieId}`);
       
+      // First, check if we're online
+      if (!navigator.onLine) {
+        throw new Error("You're offline. Showing locally stored reviews.");
+      }
+      
       // Add a timeout to handle network issues
       const timeoutPromise: Promise<SupabaseResponse> = new Promise((_, reject) => 
         setTimeout(() => reject(new Error("Request timeout after 10 seconds")), 10000)
@@ -93,6 +98,14 @@ export const useReviews = (movieId: number) => {
         // No local storage data available
         console.log('No localStorage fallback available');
       }
+      
+      toast({
+        title: navigator.onLine ? "Connection issue" : "You're offline",
+        description: navigator.onLine ? 
+          "Could not connect to review server. Showing locally saved reviews." : 
+          "Showing locally saved reviews until you're back online.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
       setIsRefetching(false);
@@ -102,7 +115,32 @@ export const useReviews = (movieId: number) => {
   // Fetch reviews when component mounts or movieId changes
   useEffect(() => {
     fetchReviews();
-  }, [fetchReviews]);
+    
+    // Set up event listeners for online/offline status
+    const handleOnlineStatus = () => {
+      if (navigator.onLine) {
+        toast({
+          title: "You're back online",
+          description: "Fetching the latest reviews...",
+        });
+        fetchReviews();
+      } else {
+        toast({
+          title: "You're offline",
+          description: "Showing locally saved reviews until you're back online.",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener('offline', handleOnlineStatus);
+    
+    return () => {
+      window.removeEventListener('online', handleOnlineStatus);
+      window.removeEventListener('offline', handleOnlineStatus);
+    };
+  }, [fetchReviews, toast]);
 
   // Function to refresh reviews on demand
   const refetchReviews = () => {
@@ -123,6 +161,11 @@ export const useReviews = (movieId: number) => {
     
     try {
       console.log('Saving review to Supabase:', newReview);
+      
+      // Check if we're online first
+      if (!navigator.onLine) {
+        throw new Error("You're offline. Review saved locally only.");
+      }
       
       // Add a timeout to handle network issues
       const timeoutPromise: Promise<{ error: { message: string } | null }> = new Promise((_, reject) => 
@@ -166,8 +209,10 @@ export const useReviews = (movieId: number) => {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error saving review';
       setError(errorMessage);
       toast({
-        title: "Network error",
-        description: "Your review is saved locally, but we couldn't connect to our servers. Please try again later.",
+        title: navigator.onLine ? "Connection error" : "You're offline",
+        description: navigator.onLine ? 
+          "Your review is saved locally, but we couldn't connect to our servers. Please try again later." :
+          "Your review is saved locally and will be uploaded when you're back online.",
         variant: "destructive",
       });
       
