@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from '@supabase/supabase-js';
 import { useToast } from "@/components/ui/use-toast";
@@ -17,6 +18,11 @@ export interface Review {
   author: string;
 }
 
+interface SupabaseResponse {
+  data: Review[] | null;
+  error: { message: string } | null;
+}
+
 export const useReviews = (movieId: number) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,7 +39,7 @@ export const useReviews = (movieId: number) => {
       console.log(`Fetching reviews for movie ID: ${movieId}`);
       
       // Add a timeout to handle network issues
-      const timeoutPromise = new Promise((_, reject) => 
+      const timeoutPromise: Promise<SupabaseResponse> = new Promise((_, reject) => 
         setTimeout(() => reject(new Error("Request timeout after 10 seconds")), 10000)
       );
       
@@ -47,9 +53,9 @@ export const useReviews = (movieId: number) => {
       // Race between timeout and fetch
       const result = await Promise.race([fetchPromise, timeoutPromise]);
       
-      // If result is from Supabase (not the timeout), handle it
-      if ('data' in result && 'error' in result) {
-        const { data, error } = result;
+      // Type guard to check if result is from Supabase
+      if (result && 'data' in result && 'error' in result) {
+        const { data, error } = result as SupabaseResponse;
         
         if (error) {
           console.error('Error fetching reviews from Supabase:', error);
@@ -119,7 +125,7 @@ export const useReviews = (movieId: number) => {
       console.log('Saving review to Supabase:', newReview);
       
       // Add a timeout to handle network issues
-      const timeoutPromise = new Promise((_, reject) => 
+      const timeoutPromise: Promise<{ error: { message: string } | null }> = new Promise((_, reject) => 
         setTimeout(() => reject(new Error("Submission timeout after 15 seconds")), 15000)
       );
       
@@ -131,9 +137,9 @@ export const useReviews = (movieId: number) => {
       // Race between timeout and insert
       const result = await Promise.race([insertPromise, timeoutPromise]);
       
-      // If result is from Supabase (not the timeout), handle it
-      if ('error' in result) {
-        const { error } = result;
+      // Type guard to check if result is from Supabase
+      if (result && 'error' in result) {
+        const { error } = result as { error: { message: string } | null };
         
         if (error) {
           console.error('Error adding review to Supabase:', error);
