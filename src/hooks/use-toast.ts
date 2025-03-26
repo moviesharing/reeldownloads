@@ -169,6 +169,37 @@ function toast({ ...props }: Toast) {
   }
 }
 
+// Define the toast instance with additional methods
+interface ToastInstance {
+  (props: Toast): {
+    id: string;
+    dismiss: () => void;
+    update: (props: ToasterToast) => void;
+  };
+  success: (message: string) => void;
+  error: (message: string) => void;
+}
+
+// Create the toast instance with added methods
+const toastInstance = toast as ToastInstance;
+
+// Add success and error methods
+toastInstance.success = (message: string) => {
+  toastInstance({
+    title: "Success",
+    description: message,
+    className: "bg-green-50 dark:bg-green-900",
+  });
+};
+
+toastInstance.error = (message: string) => {
+  toastInstance({
+    title: "Error",
+    description: message,
+    variant: "destructive",
+  });
+};
+
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
@@ -184,9 +215,9 @@ function useToast() {
 
   return {
     ...state,
-    toast,
+    toast: toastInstance,
     dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
   }
 }
 
-export { useToast, toast }
+export { useToast, toastInstance as toast }
