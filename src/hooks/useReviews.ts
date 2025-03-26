@@ -28,12 +28,15 @@ export const useReviews = (movieId: number) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefetching, setIsRefetching] = useState(false);
   const [isLocalData, setIsLocalData] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const { toast } = useToast();
 
   // Function to fetch reviews
   const fetchReviews = useCallback(async () => {
     setIsLoading(true);
     setIsLocalData(false);
+    setConnectionError(null);
     
     try {
       console.log(`Fetching reviews for movie ID: ${movieId}`);
@@ -41,6 +44,7 @@ export const useReviews = (movieId: number) => {
       // First, check if we're online
       if (!navigator.onLine) {
         setIsLocalData(true);
+        setConnectionError("You're offline");
         throw new Error("You're offline. Showing locally stored reviews.");
       }
       
@@ -66,8 +70,9 @@ export const useReviews = (movieId: number) => {
         if (error) {
           console.error('Error fetching reviews from Supabase:', error);
           setIsLocalData(true);
+          setConnectionError(`Database error: ${error.message}`);
           
-          // Silently fallback to localStorage if Supabase fails - no toast
+          // Fallback to localStorage if Supabase fails
           const storedReviews = localStorage.getItem(`reviews-${movieId}`);
           if (storedReviews) {
             console.log('Falling back to localStorage reviews');
@@ -76,6 +81,9 @@ export const useReviews = (movieId: number) => {
         } else {
           console.log(`Received ${data?.length || 0} reviews from Supabase`);
           setReviews(data || []);
+          // Clear any previous error state
+          setConnectionError(null);
+          setRetryCount(0);
           // Update localStorage as a backup
           localStorage.setItem(`reviews-${movieId}`, JSON.stringify(data || []));
         }
@@ -84,7 +92,20 @@ export const useReviews = (movieId: number) => {
       console.error('Exception when fetching reviews:', err);
       setIsLocalData(true);
       
-      // Silently fallback to localStorage on exception - no toast
+      // Set appropriate error message based on error type
+      if (!navigator.onLine) {
+        setConnectionError("You're offline");
+      } else if (err instanceof Error) {
+        if (err.message.includes("timeout")) {
+          setConnectionError("Connection timeout");
+        } else {
+          setConnectionError(`Connection error: ${err.message}`);
+        }
+      } else {
+        setConnectionError("Unknown connection error");
+      }
+      
+      // Fallback to localStorage on exception
       const storedReviews = localStorage.getItem(`reviews-${movieId}`);
       if (storedReviews) {
         console.log('Falling back to localStorage reviews after exception');
@@ -92,15 +113,6 @@ export const useReviews = (movieId: number) => {
       } else {
         // No local storage data available
         console.log('No localStorage fallback available');
-      }
-      
-      // Only show toast if actually offline, not for fetch errors
-      if (!navigator.onLine) {
-        toast({
-          title: "You're offline",
-          description: "Showing locally saved reviews until you're back online.",
-          variant: "destructive",
-        });
       }
     } finally {
       setIsLoading(false);
@@ -138,9 +150,27 @@ export const useReviews = (movieId: number) => {
     };
   }, [fetchReviews, toast]);
 
+  // Auto-retry connection if failed (maximum 3 attempts)
+  useEffect(() => {
+    let retryTimer: number | undefined;
+    
+    if (connectionError && navigator.onLine && retryCount < 3) {
+      retryTimer = window.setTimeout(() => {
+        console.log(`Auto-retrying connection (attempt ${retryCount + 1}/3)...`);
+        setRetryCount(prev => prev + 1);
+        fetchReviews();
+      }, 5000 * (retryCount + 1)); // Exponential backoff
+    }
+    
+    return () => {
+      if (retryTimer) clearTimeout(retryTimer);
+    };
+  }, [connectionError, retryCount, fetchReviews]);
+
   // Function to refresh reviews on demand
   const refetchReviews = () => {
     setIsRefetching(true);
+    setRetryCount(0); // Reset retry count on manual refresh
     fetchReviews();
   };
 
@@ -161,6 +191,7 @@ export const useReviews = (movieId: number) => {
       // Check if we're online first
       if (!navigator.onLine) {
         setIsLocalData(true);
+        setConnectionError("You're offline");
         throw new Error("You're offline. Review saved locally only.");
       }
       
@@ -184,9 +215,16 @@ export const useReviews = (movieId: number) => {
         if (error) {
           console.error('Error adding review to Supabase:', error);
           setIsLocalData(true);
-          // No error toast, just silently save locally
+          setConnectionError(`Database error: ${error.message}`);
+          
+          toast({
+            title: "Review saved locally only",
+            description: "Couldn't connect to review server. Your review is saved on this device.",
+            variant: "warning",
+          });
         } else {
           console.log('Review successfully saved to Supabase');
+          setConnectionError(null);
           toast({
             title: "Review saved",
             description: "Your review has been successfully saved.",
@@ -201,12 +239,20 @@ export const useReviews = (movieId: number) => {
       console.error('Exception when adding review:', err);
       setIsLocalData(true);
       
-      // Only show toast for offline state, not for fetch errors
+      // Set appropriate error message based on error type
       if (!navigator.onLine) {
+        setConnectionError("You're offline");
         toast({
           title: "You're offline",
           description: "Your review is saved locally and will be uploaded when you're back online.",
           variant: "destructive",
+        });
+      } else if (err instanceof Error) {
+        setConnectionError(`Connection error: ${err.message}`);
+        toast({
+          title: "Connection issue",
+          description: "Your review is saved locally but couldn't be uploaded to the server.",
+          variant: "warning",
         });
       }
       
@@ -223,6 +269,7 @@ export const useReviews = (movieId: number) => {
     addReview, 
     isLoading, 
     isLocalData,
+    connectionError,
     refetchReviews, 
     isRefetching 
   };

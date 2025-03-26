@@ -5,8 +5,8 @@ import ReviewForm from "./ReviewForm";
 import ReviewList from "./ReviewList";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { RefreshCw, WifiOff, Database, HardDrive } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { RefreshCw, WifiOff, Database, HardDrive, AlertTriangle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 
@@ -15,7 +15,7 @@ interface ReviewsProps {
 }
 
 const Reviews = ({ movieId }: ReviewsProps) => {
-  const { reviews, addReview, isLoading, isLocalData, refetchReviews, isRefetching } = useReviews(movieId);
+  const { reviews, addReview, isLoading, isLocalData, connectionError, refetchReviews, isRefetching } = useReviews(movieId);
   const { toast } = useToast();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
@@ -50,6 +50,59 @@ const Reviews = ({ movieId }: ReviewsProps) => {
     refetchReviews();
   };
 
+  const getConnectionStatusAlert = () => {
+    if (isOffline) {
+      return (
+        <Alert variant="warning">
+          <WifiOff className="h-4 w-4" />
+          <AlertDescription>
+            You're offline. Showing locally saved reviews.
+          </AlertDescription>
+        </Alert>
+      );
+    }
+    
+    if (connectionError && isLocalData) {
+      let icon = <AlertTriangle className="h-4 w-4" />;
+      let title = "Connection Issue";
+      let message = "Showing locally saved reviews. The review server is currently unreachable.";
+      let variant = "warning";
+      
+      if (connectionError.includes("timeout")) {
+        icon = <Clock className="h-4 w-4" />;
+        message = "Connection timed out. Showing locally saved reviews.";
+      } else if (connectionError.includes("Database error")) {
+        icon = <Database className="h-4 w-4" />;
+        title = "Database Error";
+        message = "There was an issue accessing the reviews database. Showing locally saved data.";
+        variant = "destructive";
+      }
+      
+      return (
+        <Alert variant={variant as "warning" | "destructive" | "info"}>
+          {icon}
+          <div>
+            <AlertTitle>{title}</AlertTitle>
+            <AlertDescription>{message}</AlertDescription>
+          </div>
+        </Alert>
+      );
+    }
+    
+    if (isLocalData && !connectionError) {
+      return (
+        <Alert variant="info">
+          <HardDrive className="h-4 w-4" />
+          <AlertDescription>
+            Showing locally saved reviews. The review server is currently unreachable.
+          </AlertDescription>
+        </Alert>
+      );
+    }
+    
+    return null;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -72,23 +125,7 @@ const Reviews = ({ movieId }: ReviewsProps) => {
       </div>
       
       <div className="space-y-8">
-        {isOffline && (
-          <Alert variant="warning">
-            <WifiOff className="h-4 w-4" />
-            <AlertDescription>
-              You're offline. Showing locally saved reviews.
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        {isLocalData && !isOffline && (
-          <Alert variant="info">
-            <HardDrive className="h-4 w-4" />
-            <AlertDescription>
-              Showing locally saved reviews. The review server is currently unreachable.
-            </AlertDescription>
-          </Alert>
-        )}
+        {getConnectionStatusAlert()}
         
         {isLoading ? (
           <div className="space-y-4">
