@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from '@supabase/supabase-js';
 import { useToast } from "@/components/ui/use-toast";
@@ -26,17 +27,20 @@ export const useReviews = (movieId: number) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefetching, setIsRefetching] = useState(false);
+  const [isLocalData, setIsLocalData] = useState(false);
   const { toast } = useToast();
 
   // Function to fetch reviews
   const fetchReviews = useCallback(async () => {
     setIsLoading(true);
+    setIsLocalData(false);
     
     try {
       console.log(`Fetching reviews for movie ID: ${movieId}`);
       
       // First, check if we're online
       if (!navigator.onLine) {
+        setIsLocalData(true);
         throw new Error("You're offline. Showing locally stored reviews.");
       }
       
@@ -61,6 +65,7 @@ export const useReviews = (movieId: number) => {
         
         if (error) {
           console.error('Error fetching reviews from Supabase:', error);
+          setIsLocalData(true);
           
           // Silently fallback to localStorage if Supabase fails - no toast
           const storedReviews = localStorage.getItem(`reviews-${movieId}`);
@@ -77,6 +82,7 @@ export const useReviews = (movieId: number) => {
       }
     } catch (err) {
       console.error('Exception when fetching reviews:', err);
+      setIsLocalData(true);
       
       // Silently fallback to localStorage on exception - no toast
       const storedReviews = localStorage.getItem(`reviews-${movieId}`);
@@ -154,6 +160,7 @@ export const useReviews = (movieId: number) => {
       
       // Check if we're online first
       if (!navigator.onLine) {
+        setIsLocalData(true);
         throw new Error("You're offline. Review saved locally only.");
       }
       
@@ -176,6 +183,7 @@ export const useReviews = (movieId: number) => {
         
         if (error) {
           console.error('Error adding review to Supabase:', error);
+          setIsLocalData(true);
           // No error toast, just silently save locally
         } else {
           console.log('Review successfully saved to Supabase');
@@ -191,6 +199,7 @@ export const useReviews = (movieId: number) => {
       localStorage.setItem(`reviews-${movieId}`, JSON.stringify(updatedReviews));
     } catch (err) {
       console.error('Exception when adding review:', err);
+      setIsLocalData(true);
       
       // Only show toast for offline state, not for fetch errors
       if (!navigator.onLine) {
@@ -213,6 +222,7 @@ export const useReviews = (movieId: number) => {
     reviews, 
     addReview, 
     isLoading, 
+    isLocalData,
     refetchReviews, 
     isRefetching 
   };

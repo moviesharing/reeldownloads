@@ -6,7 +6,7 @@ import ReviewList from "./ReviewList";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { RefreshCw, WifiOff } from "lucide-react";
+import { RefreshCw, WifiOff, Database, HardDrive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 
@@ -15,7 +15,7 @@ interface ReviewsProps {
 }
 
 const Reviews = ({ movieId }: ReviewsProps) => {
-  const { reviews, addReview, isLoading, refetchReviews, isRefetching } = useReviews(movieId);
+  const { reviews, addReview, isLoading, isLocalData, refetchReviews, isRefetching } = useReviews(movieId);
   const { toast } = useToast();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
@@ -77,6 +77,15 @@ const Reviews = ({ movieId }: ReviewsProps) => {
             <WifiOff className="h-4 w-4" />
             <AlertDescription>
               You're offline. Showing locally saved reviews.
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {isLocalData && !isOffline && (
+          <Alert variant="info">
+            <HardDrive className="h-4 w-4" />
+            <AlertDescription>
+              Showing locally saved reviews. The review server is currently unreachable.
             </AlertDescription>
           </Alert>
         )}
