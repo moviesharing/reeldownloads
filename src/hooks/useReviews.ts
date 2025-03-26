@@ -25,14 +25,12 @@ interface SupabaseResponse {
 export const useReviews = (movieId: number) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isRefetching, setIsRefetching] = useState(false);
   const { toast } = useToast();
 
   // Function to fetch reviews
   const fetchReviews = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
     
     try {
       console.log(`Fetching reviews for movie ID: ${movieId}`);
@@ -63,14 +61,8 @@ export const useReviews = (movieId: number) => {
         
         if (error) {
           console.error('Error fetching reviews from Supabase:', error);
-          setError(`Database error: ${error.message}`);
-          toast({
-            title: "Error fetching reviews",
-            description: error.message,
-            variant: "destructive",
-          });
           
-          // Fallback to localStorage if Supabase fails
+          // Silently fallback to localStorage if Supabase fails - no toast
           const storedReviews = localStorage.getItem(`reviews-${movieId}`);
           if (storedReviews) {
             console.log('Falling back to localStorage reviews');
@@ -85,10 +77,8 @@ export const useReviews = (movieId: number) => {
       }
     } catch (err) {
       console.error('Exception when fetching reviews:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error fetching reviews';
-      setError(errorMessage);
       
-      // Fallback to localStorage on exception
+      // Silently fallback to localStorage on exception - no toast
       const storedReviews = localStorage.getItem(`reviews-${movieId}`);
       if (storedReviews) {
         console.log('Falling back to localStorage reviews after exception');
@@ -98,13 +88,14 @@ export const useReviews = (movieId: number) => {
         console.log('No localStorage fallback available');
       }
       
-      toast({
-        title: navigator.onLine ? "Connection issue" : "You're offline",
-        description: navigator.onLine ? 
-          "Could not connect to review server. Showing locally saved reviews." : 
-          "Showing locally saved reviews until you're back online.",
-        variant: "destructive",
-      });
+      // Only show toast if actually offline, not for fetch errors
+      if (!navigator.onLine) {
+        toast({
+          title: "You're offline",
+          description: "Showing locally saved reviews until you're back online.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
       setIsRefetching(false);
@@ -185,12 +176,7 @@ export const useReviews = (movieId: number) => {
         
         if (error) {
           console.error('Error adding review to Supabase:', error);
-          setError(`Failed to save review: ${error.message}`);
-          toast({
-            title: "Error saving review",
-            description: `Your review is saved locally, but couldn't be sent to our servers. Error: ${error.message}`,
-            variant: "destructive",
-          });
+          // No error toast, just silently save locally
         } else {
           console.log('Review successfully saved to Supabase');
           toast({
@@ -205,15 +191,15 @@ export const useReviews = (movieId: number) => {
       localStorage.setItem(`reviews-${movieId}`, JSON.stringify(updatedReviews));
     } catch (err) {
       console.error('Exception when adding review:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error saving review';
-      setError(errorMessage);
-      toast({
-        title: navigator.onLine ? "Connection error" : "You're offline",
-        description: navigator.onLine ? 
-          "Your review is saved locally, but we couldn't connect to our servers. Please try again later." :
-          "Your review is saved locally and will be uploaded when you're back online.",
-        variant: "destructive",
-      });
+      
+      // Only show toast for offline state, not for fetch errors
+      if (!navigator.onLine) {
+        toast({
+          title: "You're offline",
+          description: "Your review is saved locally and will be uploaded when you're back online.",
+          variant: "destructive",
+        });
+      }
       
       // Ensure localStorage is updated even if Supabase operation fails
       const updatedReviews = [newReview, ...reviews.filter(r => r.id !== newReview.id)];
@@ -227,7 +213,6 @@ export const useReviews = (movieId: number) => {
     reviews, 
     addReview, 
     isLoading, 
-    error, 
     refetchReviews, 
     isRefetching 
   };
