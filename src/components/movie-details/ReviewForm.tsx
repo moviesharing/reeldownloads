@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,9 +15,10 @@ const ReviewForm = ({ movieId, onSubmit }: ReviewFormProps) => {
   const [comment, setComment] = useState("");
   const [author, setAuthor] = useState("");
   const [hoveredRating, setHoveredRating] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!rating) {
@@ -46,10 +48,24 @@ const ReviewForm = ({ movieId, onSubmit }: ReviewFormProps) => {
       return;
     }
 
-    onSubmit({ rating, comment, author });
-    setRating(0);
-    setComment("");
-    setAuthor("");
+    setIsSubmitting(true);
+    
+    try {
+      await onSubmit({ rating, comment, author });
+      // Reset form after successful submission
+      setRating(0);
+      setComment("");
+      setAuthor("");
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      toast({
+        title: "Error",
+        description: "There was a problem submitting your review. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -102,7 +118,9 @@ const ReviewForm = ({ movieId, onSubmit }: ReviewFormProps) => {
           className="min-h-[100px]"
         />
       </div>
-      <Button type="submit">Submit Review</Button>
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Submitting..." : "Submit Review"}
+      </Button>
     </form>
   );
 };
