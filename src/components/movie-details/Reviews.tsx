@@ -5,8 +5,8 @@ import ReviewForm from "./ReviewForm";
 import ReviewList from "./ReviewList";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, RefreshCw, Info, WifiOff } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { RefreshCw, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 
@@ -15,7 +15,7 @@ interface ReviewsProps {
 }
 
 const Reviews = ({ movieId }: ReviewsProps) => {
-  const { reviews, addReview, isLoading, error, refetchReviews, isRefetching } = useReviews(movieId);
+  const { reviews, addReview, isLoading, refetchReviews, isRefetching } = useReviews(movieId);
   const { toast } = useToast();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
@@ -75,24 +75,8 @@ const Reviews = ({ movieId }: ReviewsProps) => {
         {isOffline && (
           <Alert variant="warning">
             <WifiOff className="h-4 w-4" />
-            <AlertTitle>You're offline</AlertTitle>
             <AlertDescription>
-              You're viewing locally saved reviews. Connect to the internet to see the latest reviews.
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        {error && !isOffline && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error loading reviews</AlertTitle>
-            <AlertDescription>
-              {error}
-              <div className="mt-2">
-                <Button variant="outline" size="sm" onClick={handleRefresh}>
-                  Try Again
-                </Button>
-              </div>
+              You're offline. Showing locally saved reviews.
             </AlertDescription>
           </Alert>
         )}

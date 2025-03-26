@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from '@supabase/supabase-js';
 import { useToast } from "@/components/ui/use-toast";
